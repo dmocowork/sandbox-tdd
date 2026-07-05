@@ -20,7 +20,7 @@ jobs:
   dispatch:
     if: >-
       github.event.deployment_status.state == 'success' &&
-      github.event.deployment_status.environment == 'Preview'
+      startsWith(github.event.deployment_status.environment, 'Preview')
     runs-on: ubuntu-latest
     steps:
       - name: Resolve branch from the commit's PR
