@@ -23,6 +23,9 @@ permissions:
 
 jobs:
   claude-qa:
+    # Secret absent (repo pas encore configuré via `claude setup-token`) → job
+    # SKIPPÉ proprement, jamais un échec cryptique côté claude-code-action.
+    if: ${{ secrets.CLAUDE_ACCESS_TOKEN != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -11,7 +11,7 @@ jobs:
   acceptance:
     if: >-
       github.event.deployment_status.state == 'success' &&
-      github.event.deployment_status.environment == 'Preview'
+      startsWith(github.event.deployment_status.environment, 'Preview')
     runs-on: ubuntu-latest
     defaults:
       run:
