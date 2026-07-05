@@ -1,0 +1,27 @@
+name: Dispatch QA
+
+# claude-code-action rejette l'événement deployment_status ("Unsupported event
+# type") — trouvé lors du pilote sandbox-tdd. Ce petit job DÉTERMINISTE (pas de
+# LLM) relaie l'information vers claude-qa.yml via workflow_dispatch, seul
+# déclencheur que l'action supporte pour un job sans issue/PR native.
+
+on:
+  deployment_status:
+
+permissions:
+  actions: write
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run claude-qa.yml --repo "${{ github.repository }}" \
+            --ref "${{ github.event.deployment.ref }}" \
+            -f base_url="${{ github.event.deployment_status.environment_url }}" \
+            -f sha="${{ github.event.deployment.sha }}"

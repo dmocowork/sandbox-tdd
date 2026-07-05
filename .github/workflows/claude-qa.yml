@@ -2,9 +2,20 @@ name: Claude — QA exploratoire
 
 # Agent QA CONSULTATIF (SDLC tdd-v2) : explore la preview au-delà des critères écrits
 # et poste ses findings en commentaire de PR. Jamais dans les required checks.
+# Déclenché via workflow_dispatch par dispatch-qa.yml (claude-code-action ne supporte
+# pas deployment_status directement).
 
 on:
-  deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "URL de la preview à explorer"
+        required: true
+        type: string
+      sha:
+        description: "SHA du commit déployé"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -12,14 +23,11 @@ permissions:
 
 jobs:
   claude-qa:
-    if: >-
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment_status.environment == 'Preview'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.deployment.sha }}
+          ref: ${{ inputs.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -28,7 +36,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
         env:
-          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          BASE_URL: ${{ inputs.base_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
@@ -39,7 +47,7 @@ jobs:
             $BASE_URL (si elle est protégée, passe le header `x-vercel-protection-bypass`
             avec la valeur de $VERCEL_AUTOMATION_BYPASS_SECRET).
 
-            1. Retrouve la PR de ce commit : `gh pr list --search "${{ github.event.deployment.sha }}" --state open`.
+            1. Retrouve la PR de ce commit : `gh pr list --search "${{ inputs.sha }}" --state open`.
                S'il n'y a pas de PR ouverte, arrête-toi là sans rien poster.
             2. Lis la spec du changement dans `specs/` (fichier lié à la branche de la PR).
             3. Explore la preview AU-DELÀ des critères écrits : cas limites, entrées
