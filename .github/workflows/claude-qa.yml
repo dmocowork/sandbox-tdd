@@ -1,0 +1,51 @@
+name: Claude — QA exploratoire
+
+# Agent QA CONSULTATIF (SDLC tdd-v2) : explore la preview au-delà des critères écrits
+# et poste ses findings en commentaire de PR. Jamais dans les required checks.
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  claude-qa:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: '--model claude-sonnet-5 --allowedTools "Read,Glob,Grep,Bash(npx playwright:*),Bash(node:*),Bash(curl:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr comment:*)"'
+          prompt: |
+            Tu es un agent QA exploratoire. La preview de ce commit est déployée sur
+            $BASE_URL (si elle est protégée, passe le header `x-vercel-protection-bypass`
+            avec la valeur de $VERCEL_AUTOMATION_BYPASS_SECRET).
+
+            1. Retrouve la PR de ce commit : `gh pr list --search "${{ github.event.deployment.sha }}" --state open`.
+               S'il n'y a pas de PR ouverte, arrête-toi là sans rien poster.
+            2. Lis la spec du changement dans `specs/` (fichier lié à la branche de la PR).
+            3. Explore la preview AU-DELÀ des critères écrits : cas limites, entrées
+               invalides, parcours adjacents, critères listés comme « manuels » dans la
+               spec. Utilise Playwright en script (`npx playwright`) ou curl.
+            4. Poste UN commentaire de PR avec `gh pr comment` : findings classés
+               (🔴 probable bug / 🟡 à vérifier / 🔵 suggestion), étapes de reproduction.
+               Si rien à signaler, dis-le explicitement. Tu es CONSULTATIF : tu ne
+               bloques rien, tu n'approuves rien.

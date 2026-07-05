@@ -1,0 +1,74 @@
+name: Smoke
+
+# Smoke test post-déploiement : après chaque push sur main (déployé automatiquement
+# par Vercel), on attend que la prod serve CE commit puis on vérifie le parcours réel.
+# Échec → issue "incident" dans ce repo. Modèle : factory-console/.github/workflows/smoke.yml
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: smoke
+  cancel-in-progress: true
+
+env:
+  PROD_URL: https://sandbox-tdd.vercel.app
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for this commit to be live
+        run: |
+          echo "Attente du déploiement de $GITHUB_SHA sur $PROD_URL…"
+          for i in $(seq 1 20); do
+            sha=$(curl -sf --max-time 10 "$PROD_URL/api/health" | jq -r '.sha' 2>/dev/null || echo "")
+            if [ "$sha" = "$GITHUB_SHA" ]; then
+              echo "Déploiement vivant (sha=$sha)"
+              exit 0
+            fi
+            echo "  tentative $i/20 : prod sert sha=${sha:-<aucune réponse>}"
+            sleep 15
+          done
+          echo "::error::Le commit $GITHUB_SHA n'est jamais apparu sur /api/health (timeout 5 min)"
+          exit 1
+
+      - name: Check /api/health
+        run: |
+          body=$(curl -sf --max-time 10 "$PROD_URL/api/health")
+          echo "$body"
+          test "$(echo "$body" | jq -r '.status')" = "ok"
+
+      - name: Check / responds
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$PROD_URL/")
+          echo "GET / -> HTTP $code"
+          case "$code" in
+            2*) ;;
+            *) echo "::error::La racine ne répond pas correctement (HTTP $code)"; exit 1 ;;
+          esac
+
+      - name: Open incident issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create incident --repo "$GITHUB_REPOSITORY" \
+            --color d73a4a --description "Incident détecté en production" --force
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body="Le smoke test post-déploiement a échoué pour le commit \`$GITHUB_SHA\`.
+
+          Run : $run_url"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label incident \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --label incident \
+              --title "incident: smoke test échoué sur main" --body "$body"
+          fi

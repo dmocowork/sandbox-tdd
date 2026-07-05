@@ -1,0 +1,38 @@
+name: Acceptance
+
+# Gate d'acceptation (SDLC tdd-v2) : joue les tests Playwright de tests/acceptance/
+# contre la preview Vercel dès qu'elle est prête (événement deployment_status).
+# Le check `acceptance` est reporté sur le SHA du commit → required status check.
+
+on:
+  deployment_status:
+
+jobs:
+  acceptance:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Preview'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run acceptance tests against preview
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
