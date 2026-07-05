@@ -1,0 +1,43 @@
+name: Dispatch QA
+
+# claude-code-action rejette l'événement deployment_status ("Unsupported event
+# type") — trouvé lors du pilote sandbox-tdd. Ce petit job DÉTERMINISTE (pas de
+# LLM) relaie l'information vers claude-qa.yml via workflow_dispatch, seul
+# déclencheur que l'action supporte pour un job sans issue/PR native.
+#
+# github.event.deployment.ref est le SHA du commit (pas un nom de branche) pour
+# une preview Vercel liée à une PR — trouvé lors du même pilote. L'API
+# workflow_dispatch exige un vrai ref (branche/tag) : on résout la branche via
+# la PR associée au commit avant de dispatcher.
+
+on:
+  deployment_status:
+
+permissions:
+  actions: write
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve branch from the commit's PR
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.deployment.sha }}/pulls" --jq '.[0].head.ref')
+          if [ -z "$branch" ]; then
+            echo "::error::Aucune PR ouverte trouvée pour le commit ${{ github.event.deployment.sha }}"
+            exit 1
+          fi
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run claude-qa.yml --repo "${{ github.repository }}" \
+            --ref "${{ steps.resolve.outputs.branch }}" \
+            -f base_url="${{ github.event.deployment_status.environment_url }}" \
+            -f sha="${{ github.event.deployment.sha }}"
