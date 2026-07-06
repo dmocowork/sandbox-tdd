@@ -15,6 +15,7 @@ on:
 
 permissions:
   actions: write
+  pull-requests: read
 
 jobs:
   dispatch:
@@ -28,9 +29,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          branch=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.deployment.sha }}/pulls" --jq '.[0].head.ref')
+          branch=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.deployment.sha }}/pulls" \
+            --jq '[.[] | select(.state == "open")][0].head.ref // empty')
           if [ -z "$branch" ]; then
-            echo "::error::Aucune PR ouverte trouvée pour le commit ${{ github.event.deployment.sha }}"
+            echo "::error::Aucune PR OUVERTE trouvée pour le commit ${{ github.event.deployment.sha }}"
             exit 1
           fi
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
