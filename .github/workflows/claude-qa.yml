@@ -22,10 +22,24 @@ permissions:
   pull-requests: write
 
 jobs:
+  check-token:
+    # `secrets` n'est PAS disponible dans une condition `if` de JOB (seulement au
+    # niveau des steps) — trouvé lors du fast-follow de la review PR #18 sur
+    # software-factory ("Unrecognized named-value: 'secrets'"). D'où ce job
+    # séparé : le secret est lu dans un step `run:` (autorisé), exposé en output,
+    # et c'est cet output que le job suivant peut lire dans son `if:`.
+    runs-on: ubuntu-latest
+    outputs:
+      present: ${{ steps.check.outputs.present }}
+    steps:
+      - id: check
+        run: echo "present=${{ secrets.CLAUDE_ACCESS_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+
   claude-qa:
+    needs: check-token
     # Secret absent (repo pas encore configuré via `claude setup-token`) → job
     # SKIPPÉ proprement, jamais un échec cryptique côté claude-code-action.
-    if: ${{ secrets.CLAUDE_ACCESS_TOKEN != '' }}
+    if: needs.check-token.outputs.present == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
