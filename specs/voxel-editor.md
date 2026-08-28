@@ -12,8 +12,9 @@ en cubes à la souris, sur PC, en français. C'est le socle : toutes les autres 
   La seule limite est physique — le plateau de la Bambu Lab X1C, 256×256×256 mm — matérialisé
   dans la scène et signalé quand on le dépasse.
 - **Outils explicites** plutôt que combinaisons de touches : un enfant de 8 ans ne doit rien
-  mémoriser. Quatre gros boutons `Poser` / `Casser` / `Peindre`, le clic gauche applique
-  l'outil actif. Clic droit glissé = tourner la caméra, molette = zoom.
+  mémoriser. Quatre gros boutons `Poser` / `Casser` / `Peindre` / `Tourner`, et le clic gauche
+  applique l'outil actif. Le clic droit glissé tourne la caméra en toutes circonstances, mais
+  l'outil `Tourner` donne la même chose au clic gauche, sans bouton à découvrir.
 - **Voxel = 8 mm par défaut** (réglable 4/6/8/10/12). À 8 mm, une construction de 15 blocs de
   long donne un objet de 12 cm : assez gratifiant pour justifier l'attente de l'impression,
   assez petit pour qu'un raté ne coûte pas cher.

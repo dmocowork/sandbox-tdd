@@ -88,10 +88,20 @@ test.describe("Éditeur voxel", () => {
     await openEditor(page);
     await expect(page.getByTestId("model-size-mm")).toHaveText("8 × 8 × 8 mm");
 
+    // Sur quel axe le bloc se pose dépend de la face visée, donc de l'angle de caméra.
+    // Seule compte la propriété stable : le modèle gagne un bloc d'épaisseur quelque part,
+    // et l'échelle suit la taille de voxel choisie.
+    const sortedDimensions = async () =>
+      (await page.getByTestId("model-size-mm").textContent())!
+        .replace(" mm", "")
+        .split("×")
+        .map((part) => Number(part.trim()))
+        .sort((a, b) => a - b);
+
     await clickCanvas(page);
-    await expect(page.getByTestId("model-size-mm")).toHaveText("8 × 8 × 16 mm");
+    await expect.poll(sortedDimensions).toEqual([8, 8, 16]);
 
     await page.getByTestId("voxel-size").selectOption("4");
-    await expect(page.getByTestId("model-size-mm")).toHaveText("4 × 4 × 8 mm");
+    await expect.poll(sortedDimensions).toEqual([4, 4, 8]);
   });
 });
