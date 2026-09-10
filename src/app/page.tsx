@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -24,6 +25,9 @@ export default function Home() {
             -1
           </button>
         </div>
+        <p className={styles.appLink}>
+          <Link href="/judo">🥋 Judo — mes 3 premières prises et mes 3 chutes</Link>
+        </p>
       </main>
     </div>
   );
