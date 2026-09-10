@@ -1,0 +1,435 @@
+/* Mobile-first : tout est pensé pour un écran de téléphone tenu d'une main. */
+
+.app {
+  --paper: #ffffff;
+  --ink: #13151a;
+  --muted: #5b6472;
+  --line: #e3e6ec;
+  --accent: #1b4ed8;
+  --accent-soft: #eef2ff;
+  --warn: #8a5200;
+  --warn-soft: #fff6e5;
+  --right: #136c3a;
+  --right-soft: #e8f6ed;
+  --wrong: #a11d2c;
+  --wrong-soft: #fdecee;
+
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  color: var(--ink);
+  overflow-wrap: break-word;
+  line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+  .app {
+    --paper: #14171d;
+    --ink: #edeef1;
+    --muted: #a2abba;
+    --line: #2a2f39;
+    --accent: #9db4ff;
+    --accent-soft: #1b2234;
+    --warn: #f2c675;
+    --warn-soft: #2a2313;
+    --right: #7fd6a2;
+    --right-soft: #15281d;
+    --wrong: #ff9aa5;
+    --wrong-soft: #2b1619;
+  }
+}
+
+/* ---------- En-tête ---------- */
+
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.kicker {
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.title {
+  margin-top: 0.35rem;
+  font-size: 1.6rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* ---------- Onglets ---------- */
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  padding: 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.tab {
+  min-height: 2.75rem; /* 44 px de cible tactile minimum */
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.tabActive {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tabActive {
+    color: #0f1219;
+  }
+}
+
+.tabHint {
+  margin: 0.6rem 0 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ---------- Cartes ---------- */
+
+.panel {
+  display: block;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.85rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fallHead {
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 0.85rem 0;
+}
+
+.rank {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.cardTitles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.cardName {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.cardSub {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  font-size: 1.3rem;
+  color: var(--muted);
+}
+
+.detail {
+  padding: 0 0.85rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.meaning {
+  font-size: 0.95rem;
+}
+
+.kanji {
+  font-weight: 600;
+}
+
+.say {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ---------- Les 3 temps d'une prise ---------- */
+
+.phases {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  counter-reset: phase;
+}
+
+.phase {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 0.4rem;
+  padding: 0.6rem 0.7rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0.4rem;
+  background: var(--accent-soft);
+  font-size: 0.92rem;
+}
+
+.phaseLabel {
+  font-weight: 700;
+}
+
+.phaseGloss {
+  color: var(--muted);
+  font-size: 0.8rem;
+  align-self: center;
+}
+
+.phaseText {
+  grid-column: 1 / -1;
+  margin-top: 0.2rem;
+}
+
+.safety {
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.4rem;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 0.88rem;
+}
+
+.keys {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+
+.keys li {
+  padding-left: 1.1rem;
+  position: relative;
+}
+
+.keys li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+.note {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---------- Vocabulaire ---------- */
+
+.vocab {
+  margin-top: 1.25rem;
+  padding: 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+}
+
+.vocabTitle {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.vocabTitle + * {
+  margin-top: 0.5rem;
+}
+
+.vocabTitle:not(:first-child) {
+  margin-top: 1.1rem;
+}
+
+.vocabList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.vocabRow {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 9rem) 1fr;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.vocabWord {
+  font-weight: 700;
+}
+
+.vocabMeaning {
+  color: var(--muted);
+}
+
+/* ---------- Quiz ---------- */
+
+.scoreBar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.score {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.question {
+  padding-top: 0.95rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.option {
+  min-height: 3rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:disabled {
+  cursor: default;
+}
+
+.optionRight {
+  border-color: var(--right);
+  background: var(--right-soft);
+  color: var(--right);
+}
+
+.optionWrong {
+  border-color: var(--wrong);
+  background: var(--wrong-soft);
+  color: var(--wrong);
+}
+
+.feedback {
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.feedbackRight {
+  background: var(--right-soft);
+  color: var(--right);
+}
+
+.feedbackWrong {
+  background: var(--wrong-soft);
+  color: var(--wrong);
+}
+
+.primaryButton {
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--accent);
+  color: var(--paper);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .primaryButton {
+    color: #0f1219;
+  }
+}
+
+.result {
+  padding-top: 0.95rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ---------- Pied de page ---------- */
+
+.footer {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}

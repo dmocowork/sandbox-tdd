@@ -140,3 +140,16 @@ a.secondary {
     --button-secondary-border: #1a1a1a;
   }
 }
+
+/* Lien vers la mini-app judo (cf. specs/judo.md). */
+.appLink {
+  margin-top: 24px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.appLink a {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}

@@ -61,5 +61,10 @@ restent inchangés.
 - `src/app/judo/judo-app.tsx` (nouveau) — Client Component : onglets, accordéon, quiz.
 - `src/app/judo/data.ts` (nouveau) — contenu pédagogique typé.
 - `src/app/judo/judo.module.css` (nouveau) — styles mobile-first.
-- `src/app/page.tsx` (modifié) — un lien vers `/judo` ; le compteur et ses testids
-  restent inchangés (AC-1..AC-4 de `specs/counter.md` toujours verts).
+- `src/app/page.tsx` + `src/app/page.module.css` (modifiés) — un lien vers `/judo` ; le
+  compteur et ses testids restent inchangés (AC-1..AC-4 de `specs/counter.md` toujours
+  verts).
+- `src/app/layout.tsx` (modifié) — `lang="en"` → `lang="fr"` : tout le contenu du site
+  est en français (lecture d'écran, proposition de traduction du navigateur mobile).
+- `.gitignore` (modifié) — ignore `/test-results/` et `/playwright-report/` produits par
+  une exécution locale de Playwright.
